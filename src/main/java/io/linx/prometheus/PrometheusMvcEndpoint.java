@@ -1,0 +1,32 @@
+package io.linx.prometheus;
+
+import io.prometheus.client.exporter.common.TextFormat;
+import org.springframework.boot.actuate.endpoint.mvc.AbstractEndpointMvcAdapter;
+import org.springframework.boot.actuate.endpoint.mvc.HypermediaDisabled;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.util.Collections;
+import java.util.Map;
+
+class PrometheusMvcEndpoint extends AbstractEndpointMvcAdapter<PrometheusEndpoint>{
+
+    PrometheusMvcEndpoint(PrometheusEndpoint delegate) {
+        super(delegate);
+    }
+
+    @RequestMapping(method = RequestMethod.GET, produces = TextFormat.CONTENT_TYPE_004)
+    @ResponseBody
+    @HypermediaDisabled
+    public Object invoke() {
+        if (!getDelegate().isEnabled()) {
+          return new ResponseEntity<Map<String, String>>(
+                    Collections.singletonMap("message", "This endpoint is disabled"),
+                    HttpStatus.NOT_FOUND);
+        }
+      return super.invoke();
+    }
+}
